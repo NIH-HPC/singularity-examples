@@ -5,7 +5,7 @@ From: nvidia/cuda:8.0-cudnn6-runtime-ubuntu16.04
 %labels
 ################################################################################
 MAINTAINER Wolfgang Resch
-VERSION v2
+VERSION v3
 
 ################################################################################
 %environment
