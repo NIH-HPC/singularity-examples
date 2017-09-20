@@ -1,0 +1,91 @@
+#! /bin/bash
+#U .TH keras 1
+#U .SH NAME
+#U keras \- simple wrapper around a keras singularity container
+#U .SH SYNOPSIS
+#U .B keras
+#U command [options]
+#U .SH DESCRIPTION
+#U .B keras
+#U is a convenience wrapper around a singularity container
+#U with keras and tensorflow-gpu. Note that it will only
+#U work on machines with CUDA installed (i.e. GPU nodes).
+#U [options] are passed on to the command. Note that, only
+#U the tensorflow backend is available.
+#U .SH COMMANDS
+#U .IP help 12
+#U display this help message
+#U .IP ipython 12
+#U Start an interactive ipython session
+#U .IP notebook 12
+#U Start a jupyter notebook.
+#U .IP python 12
+#U Used for running batch python scripts
+#U .SH EXAMPLES
+#U .B keras
+#U ipython
+#U .P
+#U .B keras
+#U python example.py
+#U .P
+#U .B keras
+#U notebook
+#U .SH AUTHOR
+#U Wolfgang Resch. Contact staff@helix.nih.gov for help.
+
+set -e
+
+function usage() {
+    grep '^#U ' "${BASH_SOURCE[0]}" \
+        | cut -c4- \
+        | groff -Tascii -man \
+        | less -e
+}
+
+keras_img="${PWD}/keras.img"
+keras_backend="tensorflow"
+cmd="help"
+
+while true; do
+    case "$1" in
+        ipython)
+            cmd="ipython"
+            shift
+            break
+            ;;
+        python)
+            cmd="python"
+            shift
+            break
+            ;;
+        notebook)
+            cmd="notebook"
+            shift
+            break
+            ;;
+        *)
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+export SINGULARITY_BINDPATH="/gpfs,/gs2,/gs3,/gs4,/gs5,/gs6,/gs7,/gs8,/spin1,/data,/scratch,/fdb,/lscratch"
+export KERAS_BACKEND="$keras_backend"
+
+case "$cmd" in
+    ipython)
+        singularity exec --nv "${keras_img}" ipython "$@"
+        ;;
+    python)
+        singularity exec --nv "${keras_img}" python3 "$@"
+        ;;
+    notebook)
+        singularity exec --nv "${keras_img}" jupyter notebook --no-browser
+        ;;
+    help)
+        usage
+        exit 0
+        ;;
+esac
+
