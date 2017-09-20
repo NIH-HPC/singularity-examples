@@ -42,7 +42,7 @@ function usage() {
         | less -e
 }
 
-keras_img="${PWD}/keras.img"
+keras_img="${PWD}/NIH-HPC-keras_demo-master.img"
 keras_backend="tensorflow"
 cmd="help"
 
