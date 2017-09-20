@@ -1,5 +1,5 @@
 BootStrap: docker
-From: 8.0-cudnn6-runtime-ubuntu14.04
+From: nvidia/cuda:8.0-cudnn6-runtime-ubuntu14.04
 
 ################################################################################
 %labels
