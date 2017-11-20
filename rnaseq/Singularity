@@ -22,11 +22,10 @@ IncludeCmd: yes
     conda clean --index-cache --tarballs --packages --yes
     mkdir /gpfs /spin1 /gs2 /gs3 /gs4 /gs5 /gs6 /data /scratch /fdb /lscratch
 
-cat > /singularity <<'EORUNSCRIPT'
+%runscript
 #!/bin/bash
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# this text will get copied to /singularity and will run whenever the container
-# is called as an executable
+# this text will will run whenever the container is called as an executable
 function usage() {
     cat <<EOF
 
@@ -52,10 +51,6 @@ function tools() {
     echo "samtools: $(samtools --version | head -n1)"
 }
 
-export PATH="/opt/conda/bin:/usr/local/bin:/usr/bin:/bin:"
-unset CONDA_DEFAULT_ENV
-export ANACONDA_HOME=/opt/conda
-
 arg="${1:-none}"
 
 case "$arg" in
@@ -65,5 +60,8 @@ case "$arg" in
     # just try to execute it then
     *)    $@;;
 esac
-EORUNSCRIPT
-chmod 755 /singularity
+
+%environment
+export PATH="/opt/conda/bin:/usr/local/bin:/usr/bin:/bin:"
+unset CONDA_DEFAULT_ENV
+export ANACONDA_HOME=/opt/conda
