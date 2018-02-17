@@ -1,0 +1,67 @@
+BootStrap: docker
+From: debian:stretch-slim
+Maintainer: Afif Elghraoui <staff@hpc.nih.gov>
+
+%runscript
+    rstudio "$@"
+
+%post
+#
+# Choose your mirror from the list at
+# http://cran.r-project.org/mirrors.html
+#
+    export r_mirror="http://mirrors.nics.utk.edu/cran"
+
+# Disable interactive package configuration prompts
+    export DEBIAN_FRONTEND=noninteractive
+
+#
+# Set up the R backports repository to get latest version of the R interpreter
+# See https://cran.cnr.berkeley.edu/bin/linux/debian/#backports-on-cran
+#
+    apt-get update
+    # libssl and libcurl are needed to build some R packages. You may
+    # need to install others depending on the R packages you need.
+    apt-get install -y gnupg libssl-dev libcurl4-openssl-dev
+    cat <<__R-BACKPORTS__ > /etc/apt/sources.list.d/r-backports.list
+deb ${r_mirror}/bin/linux/debian stretch-cran34/
+__R-BACKPORTS__
+    apt-key adv --keyserver keys.gnupg.net --recv-key 'E19F5F87128899B192B1A2C2AD5F960A256A04AF'
+    apt-get update
+    apt-get -t stretch-cran34 install -y \
+        r-base-core \
+        r-base-dev \
+        r-recommended \
+        littler \
+        python-rpy2
+
+#
+# Install RStudio
+# see https://www.rstudio.com/products/rstudio/download/#download
+#
+    apt-get install -y xorg wget
+    wget https://download1.rstudio.org/rstudio-xenial-1.1.423-amd64.deb
+    dpkg -i --force-depends rstudio-xenial-1.1.423-amd64.deb
+    apt-get -f install -y
+    # an undeclared dependency? rstudio fails to start unless we install this:
+    apt-get -y install -y libxslt1.1
+
+#
+# Remove all downloaded packages to minimize the container size
+#
+    apt-get clean
+    rm -f rstudio-*.deb
+
+#
+# Install additional R packages from CRAN and Bioconductor
+#
+    r <<__INSTALLCMDS__
+install.packages(c('devtools','ggplot2','dplyr'),repos="$r_mirror")
+
+source("https://bioconductor.org/biocLite.R")
+biocLite(c('Rsamtools'))
+__INSTALLCMDS__
+
+%environment
+# Set locale
+    export LC_ALL=C.UTF-8
