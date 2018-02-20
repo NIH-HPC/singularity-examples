@@ -1,6 +1,8 @@
 BootStrap: docker
 From: debian:stretch-slim
-Maintainer: Afif Elghraoui <staff@hpc.nih.gov>
+
+%labels
+    Maintainer Afif Elghraoui <staff@hpc.nih.gov>
 
 %runscript
     rstudio "$@"
