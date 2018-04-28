@@ -1,0 +1,28 @@
+BootStrap: docker
+From: nvidia/cuda:9.0-cudnn7-runtime-ubuntu16.04
+
+#---------------------------------------------------------------------
+%labels
+#---------------------------------------------------------------------
+MAINTAINER Wolfgang Resch
+
+#---------------------------------------------------------------------
+%environment
+#---------------------------------------------------------------------
+export PATH=/bin:/usr/bin:/usr/local/bin:/usr/local/cuda/bin:
+export LC_ALL=C
+
+#---------------------------------------------------------------------
+%post
+#---------------------------------------------------------------------
+
+apt-get update
+apt-get install -y libhdf5-dev graphviz python-dev python-pip
+apt-get clean
+
+pip install tensorflow-gpu==1.8.0
+pip install keras==2.1.6
+pip install Pillow scikit-learn pandas matplotlib notebook ipython==5.6.0
+
+# create some generic mount points
+mkdir /mnt/data /mnt/input /mnt/output /mnt/ref /mnt/code /mnt/work
