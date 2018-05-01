@@ -1,0 +1,63 @@
+BootStrap: localimage
+From: ./torch.simg
+
+#---------------------------------------------------------------------
+%labels
+#---------------------------------------------------------------------
+MAINTAINER Wolfgang Resch
+
+#---------------------------------------------------------------------
+%post
+#---------------------------------------------------------------------
+# post doesn't automatically get the starting container's environment
+. /opt/torch/install/bin/torch-activate
+
+# extras to go along with torch
+luarocks install luaposix
+luarocks install moses
+luarocks install luasocket
+luarocks install parallel
+luarocks install torchnet
+luarocks install classic
+luarocks install dataset
+luarocks install rnn
+luarocks install twrl
+
+# install nccl for multi GPU support
+cd /opt \
+  && git clone https://github.com/NVIDIA/nccl.git \
+  && cd nccl \
+  && make CUDA_HOME=/usr/local/cuda -j"$(nproc)" \
+  && make install
+cd /opt && rm -rf nccl
+luarocks install nccl
+
+# Install loadcaffe + dependencies
+apt-get install -y libprotobuf-dev protobuf-compiler \
+  && luarocks install loadcaffe
+
+# torch-hdf5
+apt-get install -y libhdf5-serial-dev hdf5-tools \
+  && cd /opt \
+  && git clone https://github.com/deepmind/torch-hdf5 \
+  && cd torch-hdf5 \
+  && luarocks make hdf5-0-0.rockspec LIBHDF5_LIBDIR="/usr/lib/x86_64-linux-gnu/"
+cd /opt && rm -rf torch-hdf5
+
+# itorch
+cd /opt \
+  && git clone https://github.com/facebook/iTorch.git \
+  && cd iTorch \
+  && luarocks make
+cd /opt && rm -rf iTorch
+
+# cleanup
+apt-get clean
+
+#---------------------------------------------------------------------
+%environment
+#---------------------------------------------------------------------
+
+#---------------------------------------------------------------------
+%runscript
+#---------------------------------------------------------------------
