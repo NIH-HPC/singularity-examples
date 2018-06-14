@@ -30,6 +30,13 @@ export TORCH_NVCC_FLAGS="-D__CUDA_NO_HALF_OPERATORS__"
 
 ./install.sh -sb
 
+# this installs a cudnn lua package that is not compatible with cuDNN7
+# # so install that separately again
+git clone https://github.com/soumith/cudnn.torch -b R7
+cd cudnn.torch
+/opt/torch/install/bin/luarocks make cudnn-scm-1.rockspec
+
+
 # create some generic mount points
 mkdir /mnt/data /mnt/input /mnt/output /mnt/ref /mnt/code /mnt/work
 
